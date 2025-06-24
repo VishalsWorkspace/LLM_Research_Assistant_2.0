@@ -84,7 +84,10 @@ Visit your assistant at: http://localhost:xxxx
 
 📁 Folder Structure
 
+pgsql
+
 llm_research_assistant/
+
 ├── app.py                ← Streamlit UI with real-time LLM metrics
 ├── ingest.py             ← PDF processing & vectorstore creation
 ├── requirements.txt
@@ -93,6 +96,7 @@ llm_research_assistant/
 ├── data/
 │   └── sample.pdf        ← GPT-4 Technical Report (sample PDF)
 ├── vectorstore/          ← FAISS DB (auto-generated)
+
 
 🔐 Why Offline?
 ✅ No API keys needed (100% local)
@@ -103,7 +107,8 @@ llm_research_assistant/
 
 ✅ Useful for sensitive research, reports, or legal files
 
-👨‍💻 Author
+👨‍💻 Author 
+
 by Vishal
 
 Star the repo ⭐ if you found it helpful — open to contributors!
