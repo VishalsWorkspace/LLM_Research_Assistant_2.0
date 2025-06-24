@@ -62,42 +62,27 @@ Copy
 Edit
 git clone https://github.com/YOUR_USERNAME/llm_research_assistant.git
 cd llm_research_assistant
+
 2. Create a virtual environment
-bash
-Copy
-Edit
 python -m venv venv
 venv\Scripts\activate  # On Windows
+
 3. Install Python dependencies
-bash
-Copy
-Edit
 pip install -r requirements.txt
+
 4. Download & run the LLM via Ollama
-bash
-Copy
-Edit
 ollama run mistral
 First-time download may take a few GB. Once installed, it runs fully offline.
 
 5. Ingest the PDF into FAISS
-bash
-Copy
-Edit
 python ingest.py
 This converts your PDF into vector chunks for search.
 
 6. Launch the app
-bash
-Copy
-Edit
 streamlit run app.py
-Visit your assistant at: http://localhost:8501
+Visit your assistant at: http://localhost:xxxx
 
 📁 Folder Structure
-pgsql
-Copy
-Edit
 llm_research_assistant/
 ├── app.py                ← Streamlit UI with real-time LLM metrics
 ├── ingest.py             ← PDF processing & vectorstore creation
@@ -117,17 +102,7 @@ llm_research_assistant/
 ✅ Useful for sensitive research, reports, or legal files
 
 👨‍💻 Author
-Built with 💻 by Vishal Chauhan
+by Vishal
 
 Star the repo ⭐ if you found it helpful — open to contributors!
 
-yaml
-Copy
-Edit
-
----
-
-Let me know if you want:
-- A badge header (e.g. `made-with-python`, `offline-ai`, etc.)
-- Screenshots or a GIF added to this
-- A separate `docs/` folder with usage guide
