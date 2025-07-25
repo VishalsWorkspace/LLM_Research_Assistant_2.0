@@ -1,115 +1,132 @@
-# 🧠 Offline LLM-Powered PDF Assistant
+# **🔬 LLM Model Evaluation 2.0: Offline RAG with Flask & React**
 
-> A 100% offline, ChatGPT-style question-answering app for any PDF using **Ollama (Mistral)**, **FAISS**, **HuggingFace Embeddings**, and **Streamlit** — now with built-in LLM performance metrics.
+This project showcases a robust, 100% offline, ChatGPT-style question-answering application for any PDF, built to demonstrate LLM performance metrics in a real-world Retrieval-Augmented Generation (RAG) setup. Version 2.0 transitions from Streamlit to a Flask API backend and a React.js frontend, providing a more stable and scalable architecture for model evaluation.
 
----
+## **🚀 What's New in 2.0?**
 
-## 🔍 What It Does
+* **Architectural Shift:** Replaces Streamlit with a dedicated **Flask API backend** and a **React.js single-page application (SPA) frontend**.  
+* **Enhanced Stability:** Provides a more traditional web application structure for better performance and debugging.  
+* **Offline First:** Still maintains 100% offline functionality, crucial for secure and private research.  
+* **Foundation for Scalability:** Lays the groundwork for future online and mobile deployments (Version 3.0).
 
-- Upload any PDF (`data/sample.pdf`)
-- Ask any question about the PDF
-- Uses **Mistral 7B** running locally via **Ollama**
-- Embeds content with **sentence-transformers**
-- Finds relevant context using **FAISS vector search**
-- Responds in full paragraphs — just like ChatGPT — but offline
-- 📊 Tracks **real-time performance metrics** for the LLM
+## **🔍 Core Functionality**
 
----
+* **PDF Ingestion:** Uploads any PDF (data/sample.pdf) for processing.  
+* **Question Answering:** Ask any question about the loaded PDF content.  
+* **Local LLM:** Uses **Mistral 7B** running locally via **Ollama** for inference.  
+* **Vector Search:** Embeds content with sentence-transformers and finds relevant context using **FAISS vector search**.  
+* **Conversational AI:** Responds in full paragraphs, similar to ChatGPT, all executed offline.  
+* **Real-time Performance Metrics:** 📊 Tracks and displays key LLM performance metrics directly in the UI.
 
-## 📊 What Metrics Are Tracked
+## **📊 LLM Performance Metrics Tracked**
 
-Each time a question is asked, the app shows:
+Each time a question is asked, the application provides insights into:
 
-| Metric             | Description                                  |
-|--------------------|----------------------------------------------|
-| ⏱️ Inference Time  | Time taken for the LLM to generate a response |
-| 🧠 LLM CPU Usage   | CPU % used by the Ollama process              |
-| 💾 LLM RAM Usage   | RAM used by the LLM (RSS memory in MB)        |
+| Metric             | Description |
+| :------------------|:--------------------------------------------- |
+| ⏱️ Inference Time | Time taken for the LLM to generate a response |
+| 🧠 LLM CPU Usage  | CPU % utilized by the Ollama process |
+| 💾 LLM RAM Usage  | Resident Set Size (RSS) memory used by the LLM in MB |
 
----
+## **📦 Requirements**
 
-## 📦 Requirements
-
-- Python 3.9 or above
-- `pip install -r requirements.txt`
-- [Install Ollama](https://ollama.com/download) and run:
-  ```bash
+* Python 3.9 or above  
+* pip install \-r requirements.txt  
+* [Install Ollama](https://ollama.com/download) and run:  
   ollama run mistral
 
-📄 Sample PDF Included
+  *(First-time download may take a few GB. Once installed, it runs fully offline.)*  
+* Node.js (for npm and serve to run the frontend)
+
+## **📄 Sample PDF Included**
+
 We’ve included the official LLM Technical Report (GPT-4) as a sample PDF:
 
-📘 GPT-4 Technical Report (arXiv)
-📁 Located in: data/sample.pdf
+* 📘 **GPT-4 Technical Report (arXiv)**  
+* 📁 Located in: data/sample.pdf
 
-🤖 Try Prompts Like:
-“What are the key differences between GPT-3.5 and GPT-4?”
+🤖 **Try Prompts Like:**
 
-“Mention benchmark scores”
+* “What are the key differences between GPT-3.5 and GPT-4?”  
+* “Mention benchmark scores”  
+* “Limitations of GPT-4?”  
+* “Summarize the performance of GPT-4 on academic tasks”  
+* “What tests were used to evaluate GPT-4?”  
+* “Does GPT-4 outperform humans?”
 
-“Limitations of GPT-4?”
+## **🖥️ Run Locally (Offline, No API Keys)**
 
-“Summarize the performance of GPT-4 on academic tasks”
+Follow these steps to get Model Evaluation 2.0 running on your machine:
 
-“What tests were used to evaluate GPT-4?”
+1. **Clone the repository:**  
+   git clone https://github.com/YOUR\_USERNAME/llm\_research\_assistant.git  
+   cd llm\_research\_assistant
 
-“Does GPT-4 outperform humans?”
+2. **Create Python Virtual Environment & Install Dependencies:**  
+   python \-m venv venv  
+   .\\venv\\Scripts\\activate   \# On Windows PowerShell  
+   \# Or: source venv/bin/activate \# On macOS/Linux/Git Bash  
+   pip install \-r requirements.txt
 
-🖥️ Run Locally (Offline, No API Keys)
-1. Clone the repository
-bash
-Copy
-Edit
-git clone https://github.com/YOUR_USERNAME/llm_research_assistant.git
-cd llm_research_assistant
+3. Ensure Ollama is Running:  
+   Open a NEW terminal window (do not activate venv here) and start the Ollama server:  
+   ollama run mistral
 
-2. Create a virtual environment
-python -m venv venv
-venv\Scripts\activate  # On Windows
+   Keep this terminal open.  
+4. Launch the Flask Backend API:  
+   In your first terminal window (where venv is activated), run the Flask application:  
+   python backend.py
 
-3. Install Python dependencies
-pip install -r requirements.txt
+   You should see output indicating the Flask app is running on http://127.0.0.1:5000. Keep this terminal open.  
+5. Serve the React Frontend:  
+   Open another NEW terminal window (do not activate venv here).  
+   * **Install serve (if you don't have it):**  
+     npm install \-g serve
 
-4. Download & run the LLM via Ollama
-ollama run mistral
-First-time download may take a few GB. Once installed, it runs fully offline.
+   * **Navigate to your project directory:**  
+     cd "D:\\B\\projects\\LLM\_research\_assistant" \# Or your actual project path
 
-5. Ingest the PDF into FAISS
-python ingest.py
-This converts your PDF into vector chunks for search.
+   * **Start the frontend server:**  
+     serve .
 
-6. Launch the app
-streamlit run app.py
-Visit your assistant at: http://localhost:xxxx
+     This will typically serve your React app on http://localhost:3000. Keep this terminal open.  
+6. Access the Application:  
+   Open your web browser and go to: http://localhost:3000
 
-📁 Folder Structure
+## **📁 Folder Structure**
 
-pgsql
+llm\_research\_assistant/  
+├── backend.py            ← Flask API handling PDF ingestion & LLM queries  
+├── index.html            ← Main web application entry point  
+├── index.js              ← React frontend application (contains App component logic)  
+├── ingest.py             ← (Backend utility \- logic integrated into backend.py, can be removed if desired)  
+├── requirements.txt      ← Python dependencies  
+├── README.md  
+├── .gitignore  
+├── data/  
+│   └── sample.pdf        ← GPT-4 Technical Report (sample PDF)  
+├── vectorstore/          ← FAISS DB (auto-generated by backend.py)  
+├── venv/                 ← Python Virtual Environment
 
-llm_research_assistant/
+## **🔐 Why Offline? (Key Benefits for Model Evaluation)**
 
-├── app.py                ← Streamlit UI with real-time LLM metrics
-├── ingest.py             ← PDF processing & vectorstore creation
-├── requirements.txt
-├── README.md
-├── .gitignore
-├── data/
-│   └── sample.pdf        ← GPT-4 Technical Report (sample PDF)
-├── vectorstore/          ← FAISS DB (auto-generated)
+* ✅ **No API Keys Needed:** 100% local operation means zero reliance on external APIs.  
+* ✅ **True Offline Functionality:** Works completely without internet access once setup is complete.  
+* ✅ **Enhanced Privacy & Security:** Your documents and data remain entirely on your local machine.  
+* ✅ **Cost-Effective:** No cloud inference costs for LLM interactions.  
+* ✅ **Ideal for Sensitive Data:** Perfect for evaluating models with confidential research, reports, or legal files.
 
+## **🛣️ Future Roadmap: Version 3.0 (Online & Mobile)**
 
-🔐 Why Offline?
-✅ No API keys needed (100% local)
+This **Model Evaluation 2.0** project serves as a robust foundation. Our future plans for **Version 3.0** include transforming this into a full-fledged, publicly accessible online and mobile application:
 
-✅ Works without internet once setup is complete
+* **Cloud Deployment:** Hosting the Flask backend (with Ollama/LLM) on cloud infrastructure (e.g., AWS, GCP, Azure) for internet accessibility.  
+* **Scalable Frontend Hosting:** Deploying the React frontend to a global static hosting service.  
+* **Mobile Applications:** Developing native-like Android and iOS applications by wrapping the existing React web app (e.g., using Capacitor) or building dedicated mobile UIs (e.g., with React Native).  
+* **User Authentication & Data Persistence:** Implementing user accounts and secure storage for PDFs and chat history (e.g., using Firebase Firestore).
 
-✅ Keeps your documents private and secure
-
-✅ Useful for sensitive research, reports, or legal files
-
-👨‍💻 Author 
+## **👨‍💻 Author**
 
 by Vishal
 
-Star the repo ⭐ if you found it helpful — open to contributors!
-
+Star the repo ⭐ if you found it helpful — open to contributors\!
