@@ -1,5 +1,39 @@
+# Python virtual environment
 venv/
-vectorstore/
+.venv/
+
+# Byte-compiled Python files
 __pycache__/
-.cache/
-.env
+*.pyc
+*.pyo
+*.pyd
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Flask specific
+.flaskenv
+
+# Data folders (FAISS vectorstore, uploaded PDFs)
+data/
+vectorstore/
+
+# Ollama models (if downloaded directly into project, though usually global)
+ollama_models/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.bak
+*~
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Streamlit specific (if you kept app.py, its cache etc.)
+.streamlit/
