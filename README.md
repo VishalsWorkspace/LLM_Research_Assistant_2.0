@@ -124,31 +124,6 @@ Once all prerequisites are met and dependencies are installed:
 
 ---
 
-## Project Structure
-
-(This is a suggested structure. Adjust it to match your actual project layout.)
-
-LLM-Research_assistant-2.0/
-├── venv/                      # Python virtual environment
-├── data/                      # Directory for uploaded PDFs and vector store persistence
-│   └── (e.g., processed_pdfs/)
-│   └── (e.g., faiss_index.bin)
-├── src/                       # Main application source code
-│   ├── app.py                 # Core application logic (e.g., Flask/FastAPI routes)
-│   ├── pdf_processor.py       # Handles PDF parsing and text extraction
-│   ├── embedding_model.py     # Manages text embedding into vector space
-│   ├── llm_interface.py       # Handles communication with the LLM
-│   ├── vector_store.py        # Manages the vector database (e.g., FAISS)
-│   └── utils.py               # Utility functions
-├── templates/                 # HTML templates for the web interface (if any)
-├── static/                    # Static files: CSS, JavaScript, images (if any)
-├── requirements.txt           # List of Python dependencies
-├── README.md                  # This documentation file
-├── LICENSE                    # Project license file
-└── .gitignore                 # Files/folders to ignore in Git
-
-
----
 
 ## Troubleshooting
 
