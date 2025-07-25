@@ -182,3 +182,4 @@ def ask_pdf():
 if __name__ == '__main__':
     load_resources() # Load resources when the app starts
     app.run(host='0.0.0.0', port=5000, debug=True) # Run on all available interfaces, port 5000
+##
