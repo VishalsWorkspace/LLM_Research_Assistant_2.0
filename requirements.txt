@@ -1,9 +1,13 @@
-    langchain==0.1.14
-    langchain-community
-    sentence-transformers
-    streamlit
-    PyPDF2
-    Flask
-    Flask-Cors
-    psutil
-    
+I can add `pypdf` to your list of dependencies. Here is the updated list:
+
+```
+langchain==0.1.14
+langchain-community
+sentence-transformers
+streamlit
+PyPDF2
+pypdf
+Flask
+Flask-Cors
+psutil
+```
