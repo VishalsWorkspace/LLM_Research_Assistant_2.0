@@ -1,6 +1,4 @@
-I can add `pypdf` to your list of dependencies. Here is the updated list:
 
-```
 langchain==0.1.14
 langchain-community
 sentence-transformers
@@ -10,4 +8,3 @@ pypdf
 Flask
 Flask-Cors
 psutil
-```
