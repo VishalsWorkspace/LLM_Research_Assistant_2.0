@@ -156,6 +156,7 @@ LLM-Research_assistant-2.0/
 
   * **LLM Model:** The LLM model is configured inside `backend.py`. You can change `Ollama(model="mistral")` to any other model you have downloaded (e.g., `"llama2"`).
   * **Ollama Endpoint:** The application connects to `http://localhost:11434` by default. If your Ollama server is on a different port, you must update this in `backend.py`.
+  * **Demo Video Link:** https://drive.google.com/file/d/1viNel5l5zS6_RSsGVeCiNmhVKzNySZU2/view?usp=sharing.
 
 -----
 
