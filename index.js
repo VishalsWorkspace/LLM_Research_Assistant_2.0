@@ -9,7 +9,7 @@ const App = () => {
     const fileInputRef = React.useRef(null);
 
     // CHANGE THIS TO YOUR LIVE RENDER URL LATER
-    const API_BASE_URL = 'http://localhost:5000'; 
+    const API_BASE_URL = 'https://llm-research-assistant-2-0.onrender.com'; 
 
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
