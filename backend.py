@@ -36,8 +36,9 @@ def load_resources():
             if not google_api_key:
                 raise ValueError("GOOGLE_API_KEY not found in environment.")
 
+            # FIX 1: Use the new, mandatory replacement model. 
             embeddings = GoogleGenerativeAIEmbeddings(
-                model="models/embedding-001",
+                model="models/gemini-embedding-001",
                 google_api_key=google_api_key
             )
             print("✅ Google Gemini Embeddings loaded.")
@@ -119,7 +120,8 @@ def upload_pdf():
         total_chunks = len(chunks)
         print(f"📄 {len(documents)} pages → {total_chunks} chunks")
 
-        batch_size = 10
+        # FIX 2: Maximize batch size (25) and slow down loop (2s) to completely avoid Google's 15 Requests-Per-Minute limit.
+        batch_size = 25
         db = None
 
         for i in range(0, total_chunks, batch_size):
@@ -134,7 +136,7 @@ def upload_pdf():
             print(f"  Batch {batch_num}/{total_batches} embedded")
 
             if i + batch_size < total_chunks:
-                time.sleep(0.5)
+                time.sleep(2)
 
         return jsonify({
             'message': f'"{file.filename}" embedded successfully!',
