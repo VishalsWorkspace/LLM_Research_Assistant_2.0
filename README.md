@@ -8,9 +8,9 @@ Originally built as a **local-first privacy-focused prototype**, the project lat
 
 ## Demo
 
-Live App: YOUR_NETLIFY_LINK
+Live App: https://llm-pdf-research-assistant.netlify.app/
 
-Demo Video: YOUR_VIDEO_LINK
+Demo Video: https://drive.google.com/file/d/18W0pvAXXbf5ezvt7G1ZkRW28Hwf2EsCo/view?usp=sharing
 
 ---
 
