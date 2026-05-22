@@ -5,14 +5,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-# LangChain Imports (fixed from langchain_classic which doesn't exist)
+# Modern LangChain Imports
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_groq import ChatGroq
-from langchain.chains import create_retrieval_chain                         # FIX: was langchain_classic
-from langchain.chains.combine_documents import create_stuff_documents_chain # FIX: was langchain_classic
+from langchain_classic.chains import create_retrieval_chain                         
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain 
 from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
@@ -24,7 +24,7 @@ embeddings = None
 db = None
 llm = None
 
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB — raised from 1MB
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 def load_resources():
@@ -36,8 +36,6 @@ def load_resources():
             if not google_api_key:
                 raise ValueError("GOOGLE_API_KEY not found in environment.")
 
-            # FIX: text-embedding-004 is not available on v1beta API endpoint.
-            # models/embedding-001 is the stable production model that works on v1beta.
             embeddings = GoogleGenerativeAIEmbeddings(
                 model="models/embedding-001",
                 google_api_key=google_api_key
@@ -55,7 +53,7 @@ def load_resources():
             llm = ChatGroq(
                 temperature=0,
                 groq_api_key=api_key,
-                model_name="llama-3.1-70b-versatile"  # Upgraded from 8b for better quality
+                model_name="llama-3.1-70b-versatile" 
             )
             print("✅ Groq LLM initialized.")
         except Exception as e:
@@ -86,7 +84,6 @@ def upload_pdf():
     if not file.filename.lower().endswith('.pdf'):
         return jsonify({'message': 'Only PDF files are allowed.'}), 400
 
-    # Check file size server-side
     file.seek(0, 2)
     file_size = file.tell()
     file.seek(0)
@@ -113,7 +110,6 @@ def upload_pdf():
         if not documents:
             return jsonify({'message': 'Could not extract text from PDF. Is it scanned?'}), 400
 
-        # Larger chunks = fewer API calls = faster embedding
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=2000,
             chunk_overlap=200,
@@ -123,7 +119,6 @@ def upload_pdf():
         total_chunks = len(chunks)
         print(f"📄 {len(documents)} pages → {total_chunks} chunks")
 
-        # Larger batches (10 vs 3) + shorter delay (0.5s vs 3s) = ~6x faster
         batch_size = 10
         db = None
 
@@ -138,7 +133,6 @@ def upload_pdf():
             total_batches = (total_chunks + batch_size - 1) // batch_size
             print(f"  Batch {batch_num}/{total_batches} embedded")
 
-            # Respect rate limits but don't over-sleep
             if i + batch_size < total_chunks:
                 time.sleep(0.5)
 
@@ -150,7 +144,7 @@ def upload_pdf():
 
     except Exception as e:
         print(f"❌ Upload error: {e}")
-        db = None  # Reset on failure so stale data isn't used
+        db = None  
         return jsonify({'message': f'Processing failed: {str(e)}'}), 500
     finally:
         if temp_path and os.path.exists(temp_path):
@@ -191,7 +185,6 @@ Answer:""")
 
         document_chain = create_stuff_documents_chain(llm, prompt)
 
-        # MMR retrieval gives more diverse, relevant results than plain similarity search
         retriever = db.as_retriever(
             search_type="mmr",
             search_kwargs={"k": 5, "fetch_k": 12, "lambda_mult": 0.6}
