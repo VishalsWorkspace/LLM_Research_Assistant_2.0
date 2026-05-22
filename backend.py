@@ -34,9 +34,9 @@ def load_resources():
             if not google_api_key:
                 raise ValueError("GOOGLE_API_KEY not found in environment.")
             
-            # Using the stable production model
+            # REMOVE the 'models/' prefix - just use the string directly
             embeddings = GoogleGenerativeAIEmbeddings(
-                model="models/text-embedding-004",
+                model="text-embedding-004", 
                 google_api_key=google_api_key
             )
             print("✅ Google Gemini Embeddings loaded.")
