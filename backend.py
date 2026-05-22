@@ -27,14 +27,14 @@ llm = None
 def load_resources():
     global embeddings, llm
     
-    # 1. Initialize Google Gemini Embeddings with correct model
+    # 1. Initialize Google Gemini Embeddings
     if embeddings is None:
         try:
             google_api_key = os.getenv("GOOGLE_API_KEY")
             if not google_api_key:
                 raise ValueError("GOOGLE_API_KEY not found in environment.")
             
-            # REMOVE the 'models/' prefix - just use the string directly
+            # Using the stable production embedding model
             embeddings = GoogleGenerativeAIEmbeddings(
                 model="text-embedding-004",
                 google_api_key=google_api_key
@@ -85,7 +85,7 @@ def upload_pdf():
                 chunks = splitter.split_documents(documents)
 
                 # BATCHING LOGIC: Process in small groups to avoid 429 Rate Limit
-                batch_size = 5 
+                batch_size = 3 
                 db = None
                 
                 for i in range(0, len(chunks), batch_size):
@@ -96,14 +96,14 @@ def upload_pdf():
                         db.add_documents(batch)
                     
                     # Polite delay between batches
-                    time.sleep(2) 
-                    print(f"Processed batch {i // batch_size + 1}/{(len(chunks) // batch_size) + 1}")
+                    time.sleep(3) 
+                    print(f"Processed batch {i // batch_size + 1}")
 
             os.remove(temp_file.name) 
             return jsonify({'message': f'PDF "{file.filename}" ingested successfully!'}), 200
         except Exception as e:
             print(f"Final Error: {e}")
-            return jsonify({'message': 'Embedding limit reached. Please try again or use a smaller file.'}), 500
+            return jsonify({'message': 'Embedding limit reached. Please try a smaller file.'}), 500
     else:
         return jsonify({'message': 'Only PDF files are allowed.'}), 400
 
