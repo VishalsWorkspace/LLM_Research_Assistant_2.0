@@ -1,10 +1,9 @@
-langchain
+langchain>=0.2.0
 langchain-core
 langchain-community
 langchain-google-genai
 langchain-groq
 langchain-text-splitters
-langchain-classic
 pypdf
 Flask
 Flask-Cors
