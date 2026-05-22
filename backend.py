@@ -36,7 +36,7 @@ def load_resources():
             
             # REMOVE the 'models/' prefix - just use the string directly
             embeddings = GoogleGenerativeAIEmbeddings(
-                model="text-embedding-004", 
+                model="text-embedding-004",
                 google_api_key=google_api_key
             )
             print("✅ Google Gemini Embeddings loaded.")
