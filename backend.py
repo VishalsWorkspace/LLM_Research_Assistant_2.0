@@ -5,14 +5,13 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-# Modern LangChain Imports
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_groq import ChatGroq
-from langchain_classic.chains import create_retrieval_chain                         
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain 
+from langchain.chains import create_retrieval_chain                         
+from langchain.chains.combine_documents import create_stuff_documents_chain 
 from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
@@ -26,7 +25,6 @@ llm = None
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
-
 def load_resources():
     global embeddings, llm
 
@@ -36,9 +34,8 @@ def load_resources():
             if not google_api_key:
                 raise ValueError("GOOGLE_API_KEY not found in environment.")
 
-            # FIX 1: Use the new, mandatory replacement model. 
             embeddings = GoogleGenerativeAIEmbeddings(
-                model="models/gemini-embedding-001",
+                model="models/embedding-001",
                 google_api_key=google_api_key
             )
             print("✅ Google Gemini Embeddings loaded.")
@@ -60,7 +57,6 @@ def load_resources():
         except Exception as e:
             print(f"❌ LLM error: {e}")
 
-
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
@@ -69,7 +65,6 @@ def health():
         'embeddings_ready': embeddings is not None,
         'llm_ready': llm is not None
     }), 200
-
 
 @app.route('/upload_pdf', methods=['POST'])
 def upload_pdf():
@@ -111,17 +106,18 @@ def upload_pdf():
         if not documents:
             return jsonify({'message': 'Could not extract text from PDF. Is it scanned?'}), 400
 
+        # FIX 1: Massive chunks to radically reduce the total chunk count
         splitter = RecursiveCharacterTextSplitter(
-            chunk_size=2000,
-            chunk_overlap=200,
+            chunk_size=4000,
+            chunk_overlap=400,
             separators=["\n\n", "\n", ". ", "! ", "? ", ", ", " ", ""]
         )
         chunks = splitter.split_documents(documents)
         total_chunks = len(chunks)
         print(f"📄 {len(documents)} pages → {total_chunks} chunks")
 
-        # FIX 2: Maximize batch size (25) and slow down loop (2s) to completely avoid Google's 15 Requests-Per-Minute limit.
-        batch_size = 25
+        # FIX 2: Maximize batch size to process up to 90 chunks in a SINGLE request
+        batch_size = 90
         db = None
 
         for i in range(0, total_chunks, batch_size):
@@ -135,6 +131,7 @@ def upload_pdf():
             total_batches = (total_chunks + batch_size - 1) // batch_size
             print(f"  Batch {batch_num}/{total_batches} embedded")
 
+            # A polite 2-second sleep between the rare multiple requests
             if i + batch_size < total_chunks:
                 time.sleep(2)
 
@@ -151,7 +148,6 @@ def upload_pdf():
     finally:
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)
-
 
 @app.route('/ask_pdf', methods=['POST'])
 def ask_pdf():
@@ -209,7 +205,6 @@ Answer:""")
     except Exception as e:
         print(f"❌ Query error: {e}")
         return jsonify({'message': f'Query failed: {str(e)}'}), 500
-
 
 if __name__ == '__main__':
     load_resources()
