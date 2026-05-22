@@ -85,14 +85,25 @@ def upload_pdf():
                 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
                 chunks = splitter.split_documents(documents)
 
-                # Store in-memory for the session (perfect for free cloud tiers)
-                db = FAISS.from_documents(chunks, embeddings)
+                # Robust Network Retry Logic for Render DNS cold-starts
+                max_retries = 3
+                for attempt in range(max_retries):
+                    try:
+                        db = FAISS.from_documents(chunks, embeddings)
+                        break # Success, break out of loop
+                    except Exception as e:
+                        print(f"Network attempt {attempt + 1} failed: {e}")
+                        if attempt < max_retries - 1:
+                            time.sleep(3) # Wait 3 seconds before trying again
+                        else:
+                            raise e # If all 3 attempts fail, crash gracefully
 
             os.remove(temp_file.name) # Clean up temp file
             
             return jsonify({'message': f'PDF "{file.filename}" ingested successfully!'}), 200
         except Exception as e:
-            return jsonify({'message': f'Error processing PDF: {str(e)}'}), 500
+            print(f"Final Error: {e}")
+            return jsonify({'message': 'Failed to resolve API connection. Please try again in a few seconds.'}), 500
     else:
         return jsonify({'message': 'Only PDF files are allowed.'}), 400
 
