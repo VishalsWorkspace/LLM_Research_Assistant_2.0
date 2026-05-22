@@ -52,7 +52,7 @@ def load_resources():
             llm = ChatGroq(
                 temperature=0,
                 groq_api_key=api_key,
-                model_name="llama-3.1-70b-versatile" 
+                model_name="llama-3.3-70b-versatile" 
             )
             print("✅ Groq LLM initialized.")
         except Exception as e:
