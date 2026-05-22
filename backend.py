@@ -18,7 +18,6 @@ from langchain_core.prompts import ChatPromptTemplate
 load_dotenv()
 
 app = Flask(__name__)
-# Allow CORS for local dev and your Netlify domain
 CORS(app, resources={r"/*": {"origins": "*"}}) 
 
 embeddings = None
@@ -28,22 +27,23 @@ llm = None
 def load_resources():
     global embeddings, llm
     
-    # 1. Initialize HuggingFace API Embeddings (Zero Local Memory)
+    # 1. Initialize Google Gemini Embeddings with correct model
     if embeddings is None:
         try:
             google_api_key = os.getenv("GOOGLE_API_KEY")
             if not google_api_key:
                 raise ValueError("GOOGLE_API_KEY not found in environment.")
             
+            # Using the stable production model
             embeddings = GoogleGenerativeAIEmbeddings(
-                model="models/gemini-embedding-001",
+                model="models/text-embedding-004",
                 google_api_key=google_api_key
             )
             print("✅ Google Gemini Embeddings loaded.")
         except Exception as e:
             print(f"❌ Embeddings error: {e}")
 
-    # 2. Initialize Groq LLM (Llama 3.1)
+    # 2. Initialize Groq LLM
     if llm is None:
         try:
             api_key = os.getenv("GROQ_API_KEY")
@@ -55,7 +55,7 @@ def load_resources():
                 groq_api_key=api_key, 
                 model_name="llama-3.1-8b-instant"
             )
-            print("✅ Groq LLM (Llama 3.1) initialized.")
+            print("✅ Groq LLM initialized.")
         except Exception as e:
             print(f"❌ LLM error: {e}")
 
@@ -75,7 +75,6 @@ def upload_pdf():
             if embeddings is None:
                 load_resources()
 
-            # Use NamedTemporaryFile to ensure cloud compatibility (Render)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
                 file.save(temp_file.name)
                 
@@ -85,28 +84,28 @@ def upload_pdf():
                 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
                 chunks = splitter.split_documents(documents)
 
-                # Robust Network Retry Logic for Render DNS cold-starts
-                max_retries = 3
-                for attempt in range(max_retries):
-                    try:
-                        db = FAISS.from_documents(chunks, embeddings)
-                        break # Success, break out of loop
-                    except Exception as e:
-                        print(f"Network attempt {attempt + 1} failed: {e}")
-                        if attempt < max_retries - 1:
-                            time.sleep(3) # Wait 3 seconds before trying again
-                        else:
-                            raise e # If all 3 attempts fail, crash gracefully
+                # BATCHING LOGIC: Process in small groups to avoid 429 Rate Limit
+                batch_size = 5 
+                db = None
+                
+                for i in range(0, len(chunks), batch_size):
+                    batch = chunks[i : i + batch_size]
+                    if db is None:
+                        db = FAISS.from_documents(batch, embeddings)
+                    else:
+                        db.add_documents(batch)
+                    
+                    # Polite delay between batches
+                    time.sleep(2) 
+                    print(f"Processed batch {i // batch_size + 1}/{(len(chunks) // batch_size) + 1}")
 
-            os.remove(temp_file.name) # Clean up temp file
-            
+            os.remove(temp_file.name) 
             return jsonify({'message': f'PDF "{file.filename}" ingested successfully!'}), 200
         except Exception as e:
             print(f"Final Error: {e}")
-            return jsonify({'message': 'Failed to resolve API connection. Please try again in a few seconds.'}), 500
+            return jsonify({'message': 'Embedding limit reached. Please try again or use a smaller file.'}), 500
     else:
         return jsonify({'message': 'Only PDF files are allowed.'}), 400
-
 
 @app.route('/ask_pdf', methods=['POST'])
 def ask_pdf():
@@ -122,7 +121,6 @@ def ask_pdf():
             return jsonify({'message': 'Please upload a PDF first.'}), 400
 
     try:
-        # Modern LCEL Chain Setup
         prompt = ChatPromptTemplate.from_template("""
         Answer the following question based only on the provided context. 
         If the answer is not in the context, say "I cannot answer this based on the provided document."
@@ -154,9 +152,7 @@ def ask_pdf():
     except Exception as e:
         return jsonify({'message': f'Inference Error: {str(e)}'}), 500
 
-
 if __name__ == '__main__':
     load_resources()
-    # Port must be dynamic for cloud deployment
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
