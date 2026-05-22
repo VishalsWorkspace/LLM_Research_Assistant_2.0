@@ -10,8 +10,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_groq import ChatGroq
-from langchain.chains import create_retrieval_chain                         
-from langchain.chains.combine_documents import create_stuff_documents_chain 
+# THE CORRECT IMPORTS TO PREVENT MODULENOTFOUNDERROR
+from langchain_classic.chains import create_retrieval_chain                         
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain 
 from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
@@ -35,7 +36,7 @@ def load_resources():
                 raise ValueError("GOOGLE_API_KEY not found in environment.")
 
             embeddings = GoogleGenerativeAIEmbeddings(
-                model="models/embedding-001",
+                model="models/gemini-embedding-001",
                 google_api_key=google_api_key
             )
             print("✅ Google Gemini Embeddings loaded.")
@@ -106,7 +107,7 @@ def upload_pdf():
         if not documents:
             return jsonify({'message': 'Could not extract text from PDF. Is it scanned?'}), 400
 
-        # FIX 1: Massive chunks to radically reduce the total chunk count
+        # Massive chunks to radically reduce the total chunk count
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=4000,
             chunk_overlap=400,
@@ -116,7 +117,7 @@ def upload_pdf():
         total_chunks = len(chunks)
         print(f"📄 {len(documents)} pages → {total_chunks} chunks")
 
-        # FIX 2: Maximize batch size to process up to 90 chunks in a SINGLE request
+        # Maximize batch size to process up to 90 chunks in a SINGLE request
         batch_size = 90
         db = None
 
@@ -131,7 +132,6 @@ def upload_pdf():
             total_batches = (total_chunks + batch_size - 1) // batch_size
             print(f"  Batch {batch_num}/{total_batches} embedded")
 
-            # A polite 2-second sleep between the rare multiple requests
             if i + batch_size < total_chunks:
                 time.sleep(2)
 
@@ -169,17 +169,17 @@ def ask_pdf():
 
     try:
         prompt = ChatPromptTemplate.from_template("""
-You are an expert document analyst. Answer the question using ONLY the provided context.
-Be accurate, concise, and well-structured. Use bullet points or numbered lists when helpful.
-If the answer is not in the context, say: "This information is not available in the provided document."
+        You are an expert document analyst. Answer the question using ONLY the provided context.
+        Be accurate, concise, and well-structured. Use bullet points or numbered lists when helpful.
+        If the answer is not in the context, say: "This information is not available in the provided document."
 
-<context>
-{context}
-</context>
+        <context>
+        {context}
+        </context>
 
-Question: {input}
+        Question: {input}
 
-Answer:""")
+        Answer:""")
 
         document_chain = create_stuff_documents_chain(llm, prompt)
 
