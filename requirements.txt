@@ -1,11 +1,10 @@
 langchain
 langchain-core
 langchain-community
-langchain-huggingface
+langchain-google-genai
 langchain-groq
 langchain-text-splitters
 langchain-classic
-huggingface_hub
 pypdf
 Flask
 Flask-Cors

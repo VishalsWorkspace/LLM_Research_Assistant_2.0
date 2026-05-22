@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_groq import ChatGroq
 from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
@@ -31,15 +31,15 @@ def load_resources():
     # 1. Initialize HuggingFace API Embeddings (Zero Local Memory)
     if embeddings is None:
         try:
-            hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-            if not hf_token:
-                raise ValueError("HUGGINGFACEHUB_API_TOKEN not found in environment.")
+            google_api_key = os.getenv("GOOGLE_API_KEY")
+            if not google_api_key:
+                raise ValueError("GOOGLE_API_KEY not found in environment.")
             
-            embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=hf_token, 
-                model_name="sentence-transformers/all-MiniLM-L6-v2"
+            embeddings = GoogleGenerativeAIEmbeddings(
+                model="models/text-embedding-004",
+                google_api_key=google_api_key
             )
-            print("✅ HuggingFace API Embeddings loaded.")
+            print("✅ Google Gemini Embeddings loaded.")
         except Exception as e:
             print(f"❌ Embeddings error: {e}")
 
