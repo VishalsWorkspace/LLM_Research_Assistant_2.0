@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_groq import ChatGroq
 from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
@@ -18,7 +18,7 @@ from langchain_core.prompts import ChatPromptTemplate
 load_dotenv()
 
 app = Flask(__name__)
-# Allow CORS for local dev and your future Netlify/Vercel domain
+# Allow CORS for local dev and your Netlify domain
 CORS(app, resources={r"/*": {"origins": "*"}}) 
 
 embeddings = None
@@ -27,21 +27,35 @@ llm = None
 
 def load_resources():
     global embeddings, llm
+    
+    # 1. Initialize HuggingFace API Embeddings (Zero Local Memory)
     if embeddings is None:
         try:
-            embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-            print("✅ HuggingFace Embeddings loaded.")
+            hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+            if not hf_token:
+                raise ValueError("HUGGINGFACEHUB_API_TOKEN not found in environment.")
+            
+            embeddings = HuggingFaceInferenceAPIEmbeddings(
+                api_key=hf_token, 
+                model_name="sentence-transformers/all-MiniLM-L6-v2"
+            )
+            print("✅ HuggingFace API Embeddings loaded.")
         except Exception as e:
             print(f"❌ Embeddings error: {e}")
 
+    # 2. Initialize Groq LLM (Llama 3.1)
     if llm is None:
         try:
-            # Using Groq for blazing fast, free-tier cloud inference
             api_key = os.getenv("GROQ_API_KEY")
             if not api_key:
                 raise ValueError("GROQ_API_KEY not found in .env")
-            llm = ChatGroq(temperature=0, groq_api_key=api_key, model_name="llama-3.1-8b-instant")
-            print("✅ Groq LLM (Llama 3) initialized.")
+            
+            llm = ChatGroq(
+                temperature=0, 
+                groq_api_key=api_key, 
+                model_name="llama-3.1-8b-instant"
+            )
+            print("✅ Groq LLM (Llama 3.1) initialized.")
         except Exception as e:
             print(f"❌ LLM error: {e}")
 
@@ -61,7 +75,7 @@ def upload_pdf():
             if embeddings is None:
                 load_resources()
 
-            # Use NamedTemporaryFile to ensure cloud compatibility (Render/Heroku)
+            # Use NamedTemporaryFile to ensure cloud compatibility (Render)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
                 file.save(temp_file.name)
                 
@@ -71,7 +85,7 @@ def upload_pdf():
                 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
                 chunks = splitter.split_documents(documents)
 
-                # Store in-memory for the session (best for free cloud tiers)
+                # Store in-memory for the session (perfect for free cloud tiers)
                 db = FAISS.from_documents(chunks, embeddings)
 
             os.remove(temp_file.name) # Clean up temp file
@@ -122,12 +136,13 @@ def ask_pdf():
             'metrics': {
                 'latency': latency,
                 'provider': 'Groq Cloud',
-                'model': 'Llama-3-8b'
+                'model': 'Llama-3.1-8b'
             }
         }), 200
 
     except Exception as e:
         return jsonify({'message': f'Inference Error: {str(e)}'}), 500
+
 
 if __name__ == '__main__':
     load_resources()

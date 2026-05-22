@@ -5,7 +5,7 @@ langchain-huggingface
 langchain-groq
 langchain-text-splitters
 langchain-classic
-sentence-transformers
+huggingface_hub
 pypdf
 Flask
 Flask-Cors
