@@ -316,7 +316,7 @@ const App = () => {
             <header className="header">
                 <div className="badge">Production RAG · v2</div>
                 <h1 className="title">Cloud Document Intelligence</h1>
-                <p className="subtitle">Upload any PDF up to 10 MB and query it with AI — powered by Groq's Llama 3.1 70B.</p>
+                <p className="subtitle">Upload any PDF up to 10 MB and query it with AI — powered by Groq's Llama 3.3 70B.</p>
             </header>
 
             <main className="main">
